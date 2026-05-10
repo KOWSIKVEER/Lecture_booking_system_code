@@ -1,6 +1,7 @@
 const Note = require('../models/Note');
 const StudentCourseMapping = require('../models/StudentCourseMapping');
 const Notification = require('../models/Notification');
+const { summarizeWithGroq } = require('../services/aiSummarizer');
 
 /**
  * @route   GET /api/notes
@@ -100,17 +101,14 @@ const summarizeNote = async (req, res, next) => {
     const note = await Note.findById(req.params.id);
     if (!note) return res.status(404).json({ success: false, message: 'Note not found.' });
 
-    // AI Summarizer placeholder - in production, integrate with OpenAI/Gemini
-    const placeholderSummary = `Summary of "${note.title}": This document covers key concepts related to ${note.title}. 
-    The main topics include fundamental principles, practical applications, and theoretical frameworks. 
-    Key takeaways: (1) Core concepts are well-defined, (2) Applications are industry-relevant, 
-    (3) Further reading recommended for advanced topics. [AI Summary - Placeholder Service]`;
-
-    note.summary = placeholderSummary;
+    // Generate AI summary using Groq LLM
+    const textToSummarize = `${note.title}\n${note.description || ''}`;
+    const aiSummary = await summarizeWithGroq(textToSummarize);
+    note.summary = aiSummary;
     note.summaryGeneratedAt = new Date();
     await note.save();
 
-    res.json({ success: true, message: 'Summary generated.', data: { summary: placeholderSummary } });
+    res.json({ success: true, message: 'Summary generated.', data: { summary: aiSummary } });
   } catch (error) {
     next(error);
   }

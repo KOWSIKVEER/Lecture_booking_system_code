@@ -10,9 +10,9 @@ const NoteCard = ({ note, onSummarize, onDownload }) => {
 
   const handleSummarize = async () => {
     setSummarizing(true);
-    await onSummarize(note._id);
+    const success = await onSummarize(note._id);
     setSummarizing(false);
-    setShowSummary(true);
+    if (success) setShowSummary(true);
   };
 
   return (
@@ -115,8 +115,11 @@ const Notes = () => {
       const res = await api.post(`/notes/${noteId}/summarize`);
       setNotes(prev => prev.map(n => n._id === noteId ? { ...n, summary: res.data.data.summary } : n));
       toast.success('Summary generated!');
-    } catch {
-      toast.error('Failed to generate summary');
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to generate summary';
+      toast.error(message);
+      return false;
     }
   };
 
