@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+const isProduction = process.env.NODE_ENV === 'production';
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || (isProduction ? 'https://lecture-booking-system-code.onrender.com' : 'http://localhost:5000');
 
 let socket = null;
 

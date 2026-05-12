@@ -1,8 +1,9 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const isProduction = process.env.NODE_ENV === 'production';
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api',
+  baseURL: process.env.REACT_APP_API_URL || (isProduction ? 'https://lecture-booking-system-code.onrender.com/api' : 'http://localhost:5000/api'),
   timeout: 30000
 });
 
